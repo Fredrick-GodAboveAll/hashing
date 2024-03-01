@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Substring Length and Integer Value Calculator</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    input {
+        width: 300px;
+        padding: 10px;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+    #result {
+        font-size: 18px;
+    }
+</style>
+</head>
+<body>
+
+<label for="emailInput">Enter your email address:</label>
+<input type="text" id="emailInput" placeholder="example@example.com">
+<button onclick="compareHash()">Check Email</button>
+<div id="result"></div>
+
+<script>
+    async function compareHash() {
+        const emailInput = document.getElementById("emailInput").value.trim(); // Trim whitespace
+        console.log("Input Email:", emailInput);
+
+        const hashedEmail = await sha256(emailInput);
+        // console.log("Hashed Email:", hashedEmail);
+
+        // Fetch JSON data from file
+        try {
+            const response = await fetch('fred.json');
+            const data = await response.json();
+            const jsonHash = data[0].Id;
+
+            // console.log("JSON Hash:", jsonHash);
+
+            if (hashedEmail === jsonHash) {
+                document.getElementById("result").innerHTML = "Yes, email hash matches.";
+            } else {
+                document.getElementById("result").innerHTML = "No, email hash does not match.";
+            }
+        } catch (error) {
+            console.error('Error fetching JSON data:', error);
+            document.getElementById("result").innerHTML = "Error fetching JSON data.";
+        }
+    }
+
+    async function sha256(str) {
+        const buf = new TextEncoder().encode(str);
+        const hashBuf = await crypto.subtle.digest("SHA-256", buf);
+        const hashArr = Array.from(new Uint8Array(hashBuf));
+        const hashHex = hashArr.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+</script>
+
+</body>
+</html>
